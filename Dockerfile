@@ -28,10 +28,12 @@ RUN echo 'server {\n\
         proxy_set_header X-Real-IP $remote_addr;\n\
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n\
     }\n\
+    access_log /dev/stdout;\n\
+    error_log /dev/stderr;\n\
 }' > /etc/nginx/sites-enabled/default
 
 # Expose ports for both Nginx and the Python app
 EXPOSE 80 5000
 
-# Start both Nginx and the application
-CMD service nginx start && python app.py
+# Start both Nginx and the application, keeping both in the foreground
+CMD service nginx start && tail -F /var/log/nginx/access.log /var/log/nginx/error.log & python app.py
