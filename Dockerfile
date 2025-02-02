@@ -13,8 +13,25 @@ RUN pip install -r requirements.txt
 # Copy the rest of your Python application code to the working directory
 COPY . .
 
-# Expose a port that your application may use (you can change this to match your application)
-EXPOSE 5000
+# Install Nginx
+RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
 
-# Define the command to run your Python application
-CMD ["python", "app.py"]
+# Remove default Nginx configuration
+RUN rm /etc/nginx/sites-enabled/default
+
+# Add Nginx configuration directly in Dockerfile
+RUN echo 'server {\n\
+    listen 80;\n\
+    location / {\n\
+        proxy_pass http://127.0.0.1:5000;\n\
+        proxy_set_header Host $host;\n\
+        proxy_set_header X-Real-IP $remote_addr;\n\
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n\
+    }\n\
+}' > /etc/nginx/sites-enabled/default
+
+# Expose ports for both Nginx and the Python app
+EXPOSE 80 5000
+
+# Start both Nginx and the application
+CMD service nginx start && python app.py
