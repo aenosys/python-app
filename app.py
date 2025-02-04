@@ -16,6 +16,12 @@ products = {
             "name": "Product 2",
             "price": 15.99,
             "description": "This is the description of Product 2."
+        },
+              {
+            "id": 3,
+            "name": "Product 3",
+            "price": 19.99,
+            "description": "This is the description of Product 3."
         }
     ]
 }
